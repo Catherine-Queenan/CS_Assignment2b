@@ -2,15 +2,9 @@
 // Created by eugen on 2024-11-08.
 //
 
-#ifndef HTTPSERVLETRESPONSE_H
-#define HTTPSERVLETRESPONSE_H
-
-
+#pragma once
 
 class HttpServletResponse {
 
 };
 
-
-
-#endif //HTTPSERVLETRESPONSE_H
