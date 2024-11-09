@@ -42,6 +42,6 @@ private:
 	int sockFileDescriptor;
 
 	// Structure for the server address
-	struct sockaddr serverAddress{};
+	struct sockaddr_in serverAddress{};
 };
 

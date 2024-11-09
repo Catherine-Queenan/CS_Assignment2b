@@ -34,6 +34,8 @@ Socket::Socket(const int sock) : sock(sock), sockFileDescriptor(-1) {
 Socket::~Socket() {
   if (sockFileDescriptor != -1) {
     close(sockFileDescriptor);
+    // Reset the file descriptor to the invalid state
+    sockFileDescriptor = -1;
   }
 }
 
