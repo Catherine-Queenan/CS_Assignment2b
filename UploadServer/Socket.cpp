@@ -5,13 +5,41 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdexcept>
 
-Socket::Socket(int sock)
-{
-	this->sock = sock;
+using namespace std;
+
+// File Descriptor set to negative one as default, for easy check
+Socket::Socket(const int sock) : sock(sock), sockFileDescriptor(-1) {
+  // Creating new socket using socket system call
+  // AF_INET: IPv4 addressing
+  // SOCK_STREAM: TCP socket
+  // 0: use default protocol for socket
+  sockFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
+  if (sockFileDescriptor == -1) {
+    throw runtime_error("Socket Failed to Open");
+  }
+
+  // Initialize serverAddress structure to store IP address and port
+  memset(&serverAddress, 0, sizeof(serverAddress));
+  // AF_INET: IPv4
+  serverAddress.sin_family = AF_INET;
+  // INADDR_ANY: server address set to "any" to allow connections on any IP addresses
+  serverAddress.sin_addr.s_addr = INADDR_ANY;
+  // Set the port number to the sock value
+  // htons: converts port number to network byte order according to big-endian
+  serverAddress.sin_port = htons(sock);
 }
-char* Socket::getRequest()
-{
+
+Socket::~Socket() {
+  if (sockFileDescriptor != -1) {
+    close(sockFileDescriptor);
+    // Reset the file descriptor to the invalid state
+    sockFileDescriptor = -1;
+  }
+}
+
+char* Socket::getRequest() {
   int rval;
   char *buf = new char[1024];
 
@@ -23,7 +51,9 @@ char* Socket::getRequest()
 
 	return buf;
 }
-void Socket::sendResponse(char *res){
+
+
+void Socket::sendResponse(char *res) {
 int rval;
 
   if ((rval = write(sock, res, strlen(res))) < 0){
@@ -34,6 +64,27 @@ int rval;
 
 	return;
 }
-Socket::~Socket()
-{
+
+void Socket::bindSocket() {
+  if (bind(sockFileDescriptor, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+    throw runtime_error("Socket Binding Failed");
+  }
+}
+
+void Socket::listenForConnection(const int maxPending) const {
+  if (listen(sockFileDescriptor, maxPending) < 0) {
+    throw runtime_error("Socket Listening Failed");
+  }
+}
+
+int Socket::acceptConnection() const {
+  struct sockaddr clientAddress{};
+  socklen_t clientAddressLength = sizeof(clientAddress);
+
+  int clientFileDescriptor = accept(sockFileDescriptor, (struct sockaddr*)&clientAddress, &clientAddressLength);
+  if (clientFileDescriptor == -1) {
+    throw runtime_error("Client Socket Accept Failed");
+  }
+
+  return clientFileDescriptor;
 }
