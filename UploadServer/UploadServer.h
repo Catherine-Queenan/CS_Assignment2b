@@ -4,6 +4,9 @@
 
 #pragma once
 
+using namespace std;
+
+// Class that runs the program. Cpp file contains main method
 class UploadServer {
 
 };
