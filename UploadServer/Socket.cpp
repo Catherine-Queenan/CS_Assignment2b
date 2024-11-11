@@ -5,23 +5,25 @@
 #include <unistd.h>
 #include <string.h>
 #include <stdio.h>
+#include <sstream>
+
+using namespace std;
 
 Socket::Socket(int sock)
 {
-	this->sock = sock;
+  this->sock = sock;
 }
-char* Socket::getRequest()
+stringstream Socket::getRequest()
 {
   int rval;
-  char *buf = new char[1024];
-
-  if ((rval = read(sock, buf, 1024)) < 0){
-    perror("reading socket");
-  }else  {
-    printf("%s\n",buf);
+  int buffSize = 4096;
+  char *buf = new char[buffSize];
+  stringstream in;
+  while((rval = read(sock, buf, buffSize)) > 0) {
+    in << buf;
   }
 
-	return buf;
+	return in;
 }
 void Socket::sendResponse(char *res){
 int rval;
