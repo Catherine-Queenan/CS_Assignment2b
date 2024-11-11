@@ -5,9 +5,7 @@
 #include "UploadServerThread.h"
 
 #include <iosfwd>
-#include <pthread.h>
 #include <sstream>
-
 #include "HttpServletRequest.h"
 #include "HttpServletResponse.h"
 

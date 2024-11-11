@@ -2,15 +2,12 @@
 // Created by eugen on 2024-11-08.
 //
 
-#ifndef UPLOADSERVER_H
-#define UPLOADSERVER_H
+#pragma once
 
+using namespace std;
 
-
+// Class that runs the program. Cpp file contains main method
 class UploadServer {
 
 };
 
-
-
-#endif //UPLOADSERVER_H
