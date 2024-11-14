@@ -42,7 +42,7 @@ rule CUSTOM_COMMAND
 # Rule for re-running cmake.
 
 rule RERUN_CMAKE
-  command = /cygdrive/c/Users/cathe/AppData/Local/JetBrains/CLion2024.2/cygwin_cmake/bin/cmake.exe --regenerate-during-build -S/cygdrive/c/Users/cathe/CLionProjects/CS_Assignment2b -B/cygdrive/c/Users/cathe/CLionProjects/CS_Assignment2b/cmake-build-debug
+  command = /cygdrive/c/Users/eugen/AppData/Local/JetBrains/CLion2024.2/cygwin_cmake/bin/cmake.exe --regenerate-during-build -S/cygdrive/c/Users/eugen/CLionProjects/CS_Assignment2b -B/cygdrive/c/Users/eugen/CLionProjects/CS_Assignment2b/cmake-build-debug
   description = Re-running CMake...
   generator = 1
 
@@ -51,7 +51,7 @@ rule RERUN_CMAKE
 # Rule for cleaning all built files.
 
 rule CLEAN
-  command = "/cygdrive/c/Program Files/JetBrains/CLion 2024.2.1/bin/ninja/cygwin/x64/ninja.exe" $FILE_ARG -t clean $TARGETS
+  command = "/cygdrive/c/Program Files/JetBrains/CLion 2024.2.2/bin/ninja/cygwin/x64/ninja.exe" $FILE_ARG -t clean $TARGETS
   description = Cleaning all built files...
 
 
@@ -59,6 +59,6 @@ rule CLEAN
 # Rule for printing all primary targets available.
 
 rule HELP
-  command = "/cygdrive/c/Program Files/JetBrains/CLion 2024.2.1/bin/ninja/cygwin/x64/ninja.exe" -t targets
+  command = "/cygdrive/c/Program Files/JetBrains/CLion 2024.2.2/bin/ninja/cygwin/x64/ninja.exe" -t targets
   description = All primary targets available:
 

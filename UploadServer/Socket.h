@@ -1,9 +1,10 @@
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <string>
 
 #pragma once
+
+#include <netinet/in.h>
+#include <sstream>
+
+using namespace std;
 
 class Socket {
 public:
@@ -15,12 +16,13 @@ public:
 	~Socket();
 
 	// Function to retrieve a request
-	// RETURN: a character array for the request
-	char* getRequest();
+	// PRE: delimiter must be a string predicted to be contained in the request
+	// RETURN: a string for the request
+	string getRequest(const string& delimiter);
 
 	// Function to send a response
 	// PRE: res is a character array
-	void sendResponse(char* res);
+	void sendResponse(string& res);
 
 	// Function to bind the server socket to the address and port using the bind system call
 	void bindSocket();
@@ -32,7 +34,8 @@ public:
 	// Function to accept any incoming client connections
 	// POST: clientAddress structure stores client address information
 	// POST: clientFileDescriptor is the file descriptor for the new socket created for the client's connection
-	int acceptConnection() const;
+	int acceptConnection();
+
 
 private:
 	// Socket port to listen on
@@ -40,6 +43,9 @@ private:
 
 	// File descriptor of the socket
 	int sockFileDescriptor;
+
+	// File descriptor of the connection
+	int connectionFileDescriptor;
 
 	// Structure for the server address
 	struct sockaddr_in serverAddress{};

@@ -22,10 +22,13 @@ private:
 	// Wrapper function that calls HandleClient with a thread
 	// PRE: param is a void pointer
 	// RETURN: a nullptr
-	static void* ThreadWrapper(void* param) {}
+	static void* startThread(void* param);
 
 	// Method to handle the client upload by reading the data and processing it
-	void HandleClient() {}
+	void run();
+
+	//Finds the boundary used in the form data
+	void getBoundary(const string &s, string &value);
 public:
 	// Constructor for the upload server thread that initializes the clientSocket and the associated file descriptor
 	// PRE: clientSocketFileDescriptor is an integer
@@ -34,9 +37,9 @@ public:
 		: clientSocket(clientSocket), clientSocketFileDescriptor(clientSocketFileDescriptor) {};
 
 	// Destructor
-	~UploadServerThread() {}
+	~UploadServerThread(){}
 
 	// Method that starts up the thread
-	void startThread() {}
+	void start();
 };
 
