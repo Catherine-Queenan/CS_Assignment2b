@@ -17,10 +17,10 @@ protected:
     // Pure virtual doGet method to query information from the server
     // PRE: request is an HttpServletRequest object
     // PRE: response is an HttpServletResponse object
-    virtual void doGet(HttpServletRequest request, HttpServletResponse response)=0;
+    virtual void doGet(HttpServletRequest& req, HttpServletResponse& res)=0;
 
     // Pure virtual doPost method to update information to the server
     // PRE: request is an HttpServletRequest object
     // PRE: response is an HttpServletResponse object
-    virtual void doPost(HttpServletRequest request, HttpServletResponse response)=0;
+    virtual void doPost(HttpServletRequest& req, HttpServletResponse& res)=0;
 };

@@ -1,5 +1,8 @@
 #include "Socket.h"
+
+#include <iostream>
 #include <sys/socket.h>
+#include <netinet/in.h>
 #include <sys/types.h>
 #include <resolv.h>
 #include <unistd.h>
@@ -20,8 +23,15 @@ Socket::Socket(const int sock) : sock(sock), sockFileDescriptor(-1) {
     throw runtime_error("Socket Failed to Open");
   }
 
+  int opt = 1;
+  if (setsockopt(sockFileDescriptor, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+  {
+    std::cout << "Failed to set SO_REUSEADDR option. " << strerror(errno) << "\n";
+    return;
+  }
+
   // Initialize serverAddress structure to store IP address and port
-  memset(&serverAddress, 0, sizeof(serverAddress));
+  // memset(&serverAddress, 0, sizeof(serverAddress));
   // AF_INET: IPv4
   serverAddress.sin_family = AF_INET;
   // INADDR_ANY: server address set to "any" to allow connections on any IP addresses
@@ -36,37 +46,54 @@ Socket::~Socket() {
     close(sockFileDescriptor);
     // Reset the file descriptor to the invalid state
     sockFileDescriptor = -1;
+
   }
+
+  if(connectionFileDescriptor != -1) {
+    close(connectionFileDescriptor);
+    connectionFileDescriptor = -1;
+  }
+
 }
 
-char* Socket::getRequest() {
+string Socket::getRequest(const string& delimiter) {
+  int rval = 0;
+
+  //Buffer for reading request
+  int buffSize = 1024;
+  char buf [buffSize];
+
+  string requestData;
+  // Read data in chunks until we get the full request (all headers or form data)
+  while (true) {
+    rval = read(connectionFileDescriptor, buf, buffSize);
+    requestData.append(buf, rval);
+
+    // Check for the end of the part of the request being read
+    if (requestData.find(delimiter) != std::string::npos || rval <= 0) {
+      break;
+    }
+  }
+
+	return requestData;
+}
+
+
+void Socket::sendResponse(string& res) {
   int rval;
-  char *buf = new char[1024];
 
-  if ((rval = read(sock, buf, 1024)) < 0){
-    perror("reading socket");
-  }else  {
-    printf("%s\n",buf);
-  }
-
-	return buf;
-}
-
-
-void Socket::sendResponse(char *res) {
-int rval;
-
-  if ((rval = write(sock, res, strlen(res))) < 0){
+  if ((rval = send(connectionFileDescriptor, res.c_str(), res.length(), 0)) < 0){
     perror("writing socket");
   }else  {
-    printf("%s\n",res);
+    printf("%s\n",res.c_str());
   }
 
-	return;
+  cout << "Sent Response" << endl;
 }
 
 void Socket::bindSocket() {
-  if (bind(sockFileDescriptor, (struct sockaddr*)&serverAddress, sizeof(serverAddress)) < 0) {
+  if (bind(sockFileDescriptor, reinterpret_cast<struct sockaddr *>(&serverAddress), sizeof(serverAddress)) < 0) {
+    cout << "Couldn't bind to socket, port is already busy" << endl;
     throw runtime_error("Socket Binding Failed");
   }
 }
@@ -77,14 +104,13 @@ void Socket::listenForConnection(const int maxPending) const {
   }
 }
 
-int Socket::acceptConnection() const {
+int Socket::acceptConnection() {
   struct sockaddr clientAddress{};
   socklen_t clientAddressLength = sizeof(clientAddress);
 
-  int clientFileDescriptor = accept(sockFileDescriptor, (struct sockaddr*)&clientAddress, &clientAddressLength);
-  if (clientFileDescriptor == -1) {
+  connectionFileDescriptor = accept(sockFileDescriptor, (struct sockaddr*)&clientAddress, &clientAddressLength);
+  if (connectionFileDescriptor == -1) {
     throw runtime_error("Client Socket Accept Failed");
   }
-
-  return clientFileDescriptor;
+  return connectionFileDescriptor;
 }

@@ -3,6 +3,8 @@
 //
 
 #pragma once
+#include <map>
+
 #include "HttpServlet.h"
 
 using namespace std;
@@ -17,28 +19,31 @@ private:
 	// Socket file path as a string
 	const string PATH = "./images/";
 
-	// Method to handle the post requests incoming from the client
-	void handlePost(int clientSocket);
+	// Method for collecting form fields from request
+	// PRE: boundary must be a string
+	// PRE: input must be a string
+	// RETURNS: a map containing the caption, date, filename and file bytes
+	map<string,string> getFormData(const string& boundary, const string& input);
 
-	// Method to handle the get requests from the client
-	void handleGet(int clientSocket);
+	// Method for generating list elements for the file listings
+	string getFilesList();
 
 public:
 	// Default constructor
-	UploadServlet();
+	UploadServlet(){}
 
 	// Destructor overridden from interface
-	~UploadServlet() override;
+	~UploadServlet() override{}
 
 	// Implementation of doGet method from HttpServlet interface
 	// PRE: req as an HttpServletRequest reference
 	// PRE: res as an HttpServletResponse reference
-	void doGet(HttpServletRequest& req, HttpServletResponse& res);
+	void doGet(HttpServletRequest& req, HttpServletResponse& res) override;
 
 	// Implementation of doPost method from HttpServlet interface
 	// PRE: req as an HttpServletRequest reference
 	// PRE: res as an HttpServletResponse reference
-	void doPost(HttpServletRequest& req, HttpServletResponse& res);
+	void doPost(HttpServletRequest& req, HttpServletResponse& res) override;
 
 	// Method to start the server
 	void serverStart();
