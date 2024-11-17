@@ -44,6 +44,8 @@
 #include <sstream>
 #include <cstring>
 #include <string>
+#include <ctime>
+#include <regex>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -64,11 +66,32 @@ std::string getFileMimeType(const std::string &filePath) {
         pclose(pipe);
     }
     mimeType.erase(mimeType.find_last_not_of("\n\r") + 1);
+
+    // Fallback for empty or unrecognized MIME types
+    if (mimeType == "inode/x-empty" || mimeType.empty()) {
+        std::regex txtFileRegex(".*\\.txt$", std::regex_constants::icase);
+        if (std::regex_match(filePath, txtFileRegex)) {
+            return "text/plain";
+        }
+        // Add more fallbacks as needed for other extensions
+    }
+
     return mimeType;
+}
+
+// Function to get the current date in YYYY-MM-DD format
+std::string getCurrentDate() {
+    std::time_t t = std::time(nullptr);
+    std::tm tm = *std::localtime(&t);
+    char buffer[11];
+    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tm);
+    return std::string(buffer);
 }
 
 // Function to send file
 void sendFileToServer(const std::string &host, int port, const std::string &caption, const std::string &filePath) {
+    std::cout << "Waiting for Callback\n";
+
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("Socket creation failed");
@@ -94,12 +117,15 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
     }
 
     std::ostringstream body;
-    std::string boundary = "----Boundary";
+    std::string boundary = "----Boundary" + std::to_string(std::rand());
 
     // Build request body
     body << "--" << boundary << "\r\n"
          << "Content-Disposition: form-data; name=\"caption\"\r\n\r\n"
          << caption << "\r\n"
+         << "--" << boundary << "\r\n"
+         << "Content-Disposition: form-data; name=\"date\"\r\n\r\n"
+         << getCurrentDate() << "\r\n"
          << "--" << boundary << "\r\n";
 
     std::string fileName = filePath.substr(filePath.find_last_of("/\\") + 1);
@@ -125,6 +151,17 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
 
     std::string requestStr = request.str();
 
+    // Print request for debugging
+  std::cout << "--" << boundary << "\n"
+              << "Content-Disposition: form-data; name=\"caption\"\n\n"
+              << caption << "\n"
+              << "--" << boundary << "\n"
+              << "Content-Disposition: form-data; name=\"date\"\n\n"
+              << getCurrentDate() << "\n"
+              << "--" << boundary << "\n"
+              << "Content-Disposition: form-data; name=\"File\"; filename=\"" << fileName << "\"\n"
+              << "Content-Type: " << mimeType << "\n\n";
+
     // Send request to server
     send(sock, requestStr.c_str(), requestStr.size(), 0);
 
@@ -132,7 +169,7 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
     char buffer[1024] = {0};
     ssize_t bytesRead = read(sock, buffer, sizeof(buffer));
     if (bytesRead > 0) {
-        std::cout << "Server response:\n" << std::string(buffer, bytesRead) << std::endl;
+        std::cout << "\nUpload completed!\n" << std::string(buffer, bytesRead) << std::endl;
     } else {
         std::cerr << "No response or read error from server." << std::endl;
     }
@@ -148,7 +185,7 @@ int main() {
     std::cin >> port;
     std::cin.ignore(); // Clear the newline from the input buffer
 
-    std::cout << "Enter a caption for the image: ";
+    std::cout << "Enter a caption: ";
     std::getline(std::cin, caption);
 
     std::cout << "Enter the file path: ";
