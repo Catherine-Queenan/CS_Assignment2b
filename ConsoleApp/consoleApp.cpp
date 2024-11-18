@@ -1,44 +1,3 @@
-// #include "Socket.h"
-// #include <sys/socket.h>
-// #include <sys/types.h>
-// #include <resolv.h>
-// #include <unistd.h>
-// #include <string.h>
-// #include <stdio.h>
-
-// Socket::Socket(int sock)
-// {
-// 	this->sock = sock;
-// }
-// char* Socket::getRequest()
-// {
-//   int rval;
-//   char *buf = new char[1024];
-
-//   if ((rval = read(sock, buf, 1024)) < 0){
-//     perror("reading socket");
-//   }else  {
-//     printf("%s\n",buf);
-//   }
-
-// 	return buf;
-// }
-// void Socket::sendResponse(char *res){
-// int rval;
-
-//   if ((rval = write(sock, res, strlen(res))) < 0){
-//     perror("writing socket");
-//   }else  {
-//     printf("%s\n",res);
-//   }
-
-// 	return;
-// }
-// Socket::~Socket()
-// {
-// }
-
-
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -154,28 +113,12 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
             // << bodyStr;
 
     std::string requestStr = request.str();
-    for (size_t i = 0; i < requestStr.size(); ++i) {
-        std::cout << requestStr[i];
-    }
-
     // Send request to server
     size_t totalLength = requestStr.length();
     send(sock, requestStr.c_str(), totalLength, 0);
 usleep(500);
-    ssize_t bytesSent = 0;
-    size_t dataSize = bodyStr.size();
 
-    // Send body in chunks (if large)
-    while (bytesSent < dataSize) {
-        size_t chunkSize = std::min<size_t>(4096, dataSize - bytesSent);
-        ssize_t result = send(sock, bodyStr.c_str() + bytesSent, chunkSize, 0);
-        if (result == -1) {
-            std::cerr << "Error sending body chunk\n";
-            return;
-        }
-        bytesSent += result;
-    }
-
+send(sock, bodyStr.c_str(), bodyStr.size(), 0);
 
     shutdown(sock, SHUT_WR);
 

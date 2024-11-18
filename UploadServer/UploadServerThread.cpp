@@ -42,7 +42,7 @@ void UploadServerThread::run() {
         //For getting request headers and form data
         const string HEADER_DELIM = "\r\n\r\n";
         const string FORM_DELIM = "--\r\n";
-        
+
         string request = clientSocket->getRequest(HEADER_DELIM);
         stringstream in{request};
 
