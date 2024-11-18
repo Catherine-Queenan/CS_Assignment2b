@@ -55,7 +55,7 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
         perror("Socket creation failed");
         return;
 
-
+        
     }
 
     struct sockaddr_in serverAddress{};
@@ -142,7 +142,7 @@ int main() {
     std::cin >> port;
     std::cin.ignore(); // Clear the newline from the input buffer
 
-    std::cout << "Enter a caption for the image: ";
+    std::cout << "Enter a caption for the file: ";
     std::getline(std::cin, caption);
 
     std::cout << "Enter the file path: ";
