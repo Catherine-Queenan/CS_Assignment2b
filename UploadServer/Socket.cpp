@@ -60,7 +60,7 @@ string Socket::getRequest(const string& delimiter) {
   int rval = 0;
 
   //Buffer for reading request
-  int buffSize = 1024;
+  int buffSize = 4096;
   char buf [buffSize];
 
   string requestData;
