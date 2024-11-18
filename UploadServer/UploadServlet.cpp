@@ -82,7 +82,10 @@ string UploadServlet::getFilesList() {
     }
 
     while ((d = readdir(dirp))) {
-        htmlResponse.append("<li>").append(d -> d_name).append("</li>");
+        string name = d -> d_name;
+        if(name != "." && name != "..") {
+            htmlResponse.append("<li>").append(name).append("</li>");
+        }
     }
     closedir (dirp);
 

@@ -38,3 +38,7 @@
 1562	1892	1731897983569671600	CS_Assignment2b.exe	533cb129b7f1c3b7
 64	1825	1731898279333797300	CMakeFiles/CS_Assignment2b.dir/UploadServer/Socket.cpp.o	88c13babfe638a70
 1826	2188	1731898281095055200	CS_Assignment2b.exe	533cb129b7f1c3b7
+33	1716	1731914201294593000	CMakeFiles/CS_Assignment2b.dir/UploadServer/Socket.cpp.o	88c13babfe638a70
+54	2479	1731914201315238000	CMakeFiles/CS_Assignment2b.dir/UploadServer/UploadServerThread.cpp.o	20b89ee6947f1697
+75	3405	1731914201336163300	CMakeFiles/CS_Assignment2b.dir/UploadServer/UploadServlet.cpp.o	64f2d1d6ad47e915
+3405	3729	1731914204666376500	CS_Assignment2b.exe	533cb129b7f1c3b7
