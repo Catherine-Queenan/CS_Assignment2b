@@ -3,8 +3,6 @@
 #include <sstream>
 #include <cstring>
 #include <string>
-#include <ctime>
-#include <regex>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -47,32 +45,11 @@ std::string getFileMimeType(const std::string &filePath) {
         pclose(pipe);
     }
     mimeType.erase(mimeType.find_last_not_of("\n\r") + 1);
-
-    // Fallback for empty or unrecognized MIME types
-    if (mimeType == "inode/x-empty" || mimeType.empty()) {
-        std::regex txtFileRegex(".*\\.txt$", std::regex_constants::icase);
-        if (std::regex_match(filePath, txtFileRegex)) {
-            return "text/plain";
-        }
-        // Add more fallbacks as needed for other extensions
-    }
-
     return mimeType;
-}
-
-// Function to get the current date in YYYY-MM-DD format
-std::string getCurrentDate() {
-    std::time_t t = std::time(nullptr);
-    std::tm tm = *std::localtime(&t);
-    char buffer[11];
-    std::strftime(buffer, sizeof(buffer), "%Y-%m-%d", &tm);
-    return std::string(buffer);
 }
 
 // Function to send file
 void sendFileToServer(const std::string &host, int port, const std::string &caption, const std::string &filePath) {
-    std::cout << "Waiting for Callback\n";
-
     int sock = socket(AF_INET, SOCK_STREAM, 0);
     if (sock < 0) {
         perror("Socket creation failed");
@@ -106,9 +83,6 @@ void sendFileToServer(const std::string &host, int port, const std::string &capt
     body << "--" << boundary << "\r\n"
          << "Content-Disposition: form-data; name=\"caption\"\r\n\r\n"
          << caption << "\r\n"
-         << "--" << boundary << "\r\n"
-         << "Content-Disposition: form-data; name=\"date\"\r\n\r\n"
-         << getCurrentDate() << "\r\n"
          << "--" << boundary << "\r\n";
 
     body << "Content-Disposition: form-data; name=\"date\"\r\n\r\n"
@@ -152,7 +126,7 @@ send(sock, bodyStr.c_str(), bodyStr.size(), 0);
     char buffer[1024] = {0};
     ssize_t bytesRead = read(sock, buffer, sizeof(buffer));
     if (bytesRead > 0) {
-        std::cout << "\nUpload completed!\n" << std::string(buffer, bytesRead) << std::endl;
+        std::cout << "Server response:\n" << std::string(buffer, bytesRead) << std::endl;
     } else {
         std::cerr << "No response or read error from server." << std::endl;
     }
@@ -168,7 +142,7 @@ int main() {
     std::cin >> port;
     std::cin.ignore(); // Clear the newline from the input buffer
 
-    std::cout << "Enter a caption: ";
+    std::cout << "Enter a caption for the file: ";
     std::getline(std::cin, caption);
 
     std::cout << "Enter the file path: ";
